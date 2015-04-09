@@ -32,6 +32,7 @@
 #include "ArgParser.h"
 #include "Param.h"
 #include "HTMLRenderer/HTMLRenderer.h"
+#include "StringFormatter.h" 
 
 #include "util/path.h"
 #include "util/ffw.h"
@@ -201,6 +202,8 @@ void parse_options (int argc, char **argv)
         .add("poppler-data-dir", &param.poppler_data_dir, param.poppler_data_dir, "specify poppler data directory")
         .add("debug", &param.debug, 0, "print debugging information")
         .add("proof", &param.proof, 0, "texts are drawn on both text layer and background for proof.")
+        .add("simple", &param.simple, 0, "simple format, inline pdf specific css and embed static as external link.")
+        .add("optimize", &param.optimize, 0, "use gs to optimize pdf to get smaller file size before generating html.")
 
         // meta
         .add("version,v", "print copyright and version info", &show_version_and_exit)
@@ -367,6 +370,14 @@ int main(int argc, char **argv)
     param.data_dir = PDF2HTMLEX_DATA_PATH;
 #endif
 
+// we need to define input/ouput file based on cygpath result 
+#if defined(__CYGWIN__)
+    // here gs is softlink to windows gswin64c.exe
+    char const* command = "/usr/bin/gswin64c.exe -sDEVICE=pdfwrite -dPDFSETTINGS=/screen -dAutoFilterColorImages=false -dDownsampleColorImages=false -dNOPAUSE -dQUIET -dBATCH -sOutputFile=$(cygpath -w %s)  $(cygpath -w %s)"; 
+#else 
+    char const* command = "/usr/bin/gs -sDEVICE=pdfwrite -dPDFSETTINGS=/screen -dAutoFilterColorImages=false -dDownsampleColorImages=false -dNOPAUSE -dQUIET -dBATCH -sOutputFile=%s %s"; 
+#endif 
+
     parse_options(argc, argv);
     check_param();
 
@@ -391,12 +402,38 @@ int main(int argc, char **argv)
     globalParams = new GlobalParams(!param.poppler_data_dir.empty() ? param.poppler_data_dir.c_str() : NULL);
     // open PDF file
     PDFDoc * doc = nullptr;
+
+    // pre-init pdf filename
+    StringFormatter str_fmt;
+    string pdffile = param.input_filename; 
+    string opdffile = pdffile; 
+    opdffile = str_fmt("%s.tmp", param.input_filename.c_str()); 
+
     try
     {
         {
             GooString * ownerPW = (param.owner_password == "") ? (nullptr) : (new GooString(param.owner_password.c_str()));
             GooString * userPW = (param.user_password == "") ? (nullptr) : (new GooString(param.user_password.c_str()));
-            GooString fileName(param.input_filename.c_str());
+
+            // check whether we need to optimize this pdf to get smaller font size. 
+            // the optimize will not alter image though to keep image at maximum match 
+            if(param.optimize) 
+            {
+               // to make this works in windows, we need to copy gswin64c.exe (from http://downloads.ghostscript.com/public/gs916w64.exe)
+               // to /usr/bin/gs (mv cygwin gs to gs2) 
+               // minimum version gs 9.16 to have much smaller file size. 
+               auto command_run = str_fmt(command, opdffile.c_str(), param.input_filename.c_str()); 
+               int ret = system((char*)command_run); 
+               if(ret) {
+                  // something is bad
+                  throw "Fail to run gs to optimize the file"; 
+               }
+               
+               // exchange file name 
+               pdffile = opdffile; 
+            }
+
+            GooString fileName(pdffile.c_str());
 
             doc = PDFDocFactory().createPDFDoc(fileName, ownerPW, userPW);
 
@@ -405,13 +442,28 @@ int main(int argc, char **argv)
         }
 
         if (!doc->isOk())
+        {
+            // remove optmized pdf file 
+            if(param.optimize) 
+            {
+               remove(opdffile.c_str()); 
+            }
             throw "Cannot read the file";
-
+        }
+ 
         // check for copy permission
         if (!doc->okToCopy())
         {
             if (param.no_drm == 0)
+            { 
+               // remove optmized pdf file 
+               if(param.optimize) 
+               {
+                  remove(opdffile.c_str()); 
+               }
                 throw "Copying of text from this document is not allowed.";
+            }
+
             cerr << "Document has copy-protection bit set." << endl;
         }
 
@@ -435,6 +487,10 @@ int main(int argc, char **argv)
     // clean up
     delete doc;
     delete globalParams;
+
+    // remove optmized pdf file 
+    if(param.optimize) 
+      remove(opdffile.c_str()); 
 
     // check for memory leaks
     Object::memCheck(stderr);

@@ -208,9 +208,12 @@ set(PDF2HTMLEX_RESOURCE
     ${CMAKE_SOURCE_DIR}/share/fancy.min.css
     ${CMAKE_SOURCE_DIR}/share/LICENSE
     ${CMAKE_SOURCE_DIR}/share/manifest
+    ${CMAKE_SOURCE_DIR}/share/manifest-simple
     ${CMAKE_SOURCE_DIR}/share/pdf2htmlEX.js
     ${CMAKE_SOURCE_DIR}/share/pdf2htmlEX.min.js
     ${CMAKE_SOURCE_DIR}/share/pdf2htmlEX-64x64.png
+    ${CMAKE_SOURCE_DIR}/share/pdf.min.js
+    ${CMAKE_SOURCE_DIR}/share/pdf.css
     )
 install (FILES ${PDF2HTMLEX_RESOURCE} DESTINATION share/pdf2htmlEX)
 install (FILES pdf2htmlEX.1 DESTINATION share/man/man1)

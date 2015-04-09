@@ -282,7 +282,7 @@ Viewer.prototype = {
     this.loading_indicator = document.getElementsByClassName(this.config['loading_indicator_cls'])[0];
 
     
-    {
+    if(this.outline) {
       // Open the outline if nonempty
       var empty = true;
       var nodes = this.outline.childNodes;
@@ -293,7 +293,7 @@ Viewer.prototype = {
           break;
         }
       }
-      if (!empty)
+      if (!empty && this.sidebar)
         this.sidebar.classList.add('opened');
     }
 

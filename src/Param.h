@@ -80,6 +80,10 @@ struct Param
     int debug;
     int proof;
 
+    // simple manifest 
+    int simple; 
+    int optimize; 
+
     std::string input_filename, output_filename;
 };
 

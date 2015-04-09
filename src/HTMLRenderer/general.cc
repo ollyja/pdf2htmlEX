@@ -404,7 +404,12 @@ void HTMLRenderer::post_process(void)
     }
 
     // apply manifest
-    ifstream manifest_fin((char*)str_fmt("%s/%s", param.data_dir.c_str(), MANIFEST_FILENAME.c_str()), ifstream::binary);
+    string manifest = MANIFEST_FILENAME.c_str(); 
+    // when simple param is given, use simple manifest-simple 
+    if(param.simple)
+        manifest = str_fmt("%s-simple", manifest.c_str());
+
+    ifstream manifest_fin((char*)str_fmt("%s/%s", param.data_dir.c_str(), manifest.c_str()), ifstream::binary);
     if(!manifest_fin)
         throw "Cannot open the manifest file";
 

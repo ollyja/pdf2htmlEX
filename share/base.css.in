@@ -177,10 +177,12 @@
 }
 /* selection background should not be opaque, for fallback mode */
 ::selection{
-  background: rgba(127,255,255,0.4);
+  background: #ffcc89; 
+  color: #222;
 }
 ::-moz-selection{
-  background: rgba(127,255,255,0.4);
+  background: #ffcc89;
+  color: #222; 
 }
 .@CSS_PAGE_DATA_CN@ { /* info for Javascript */
   display:none;

@@ -208,7 +208,10 @@ class FontSizeManager : public StateManager<double, FontSizeManager>
 public:
     static const char * get_css_class_name (void) { return CSS::FONT_SIZE_CN; }
     double default_value(void) { return 0; }
-    void dump_value(std::ostream & out, double value) { out << "font-size:" << round(value) << "px;"; }
+    void dump_value(std::ostream & out, double value) { 
+       out << "font-size:" << round(value) << "px;"; 
+       out << "font-size:" << round(value/2) << "px\\9;"; 
+    }
     void dump_print_value(std::ostream & out, double value, double scale) { out << "font-size:" << round(value*scale) << "pt;"; }
 };
 
