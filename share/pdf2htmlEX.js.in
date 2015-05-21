@@ -260,7 +260,8 @@ Viewer.prototype = {
 
   init_before_loading_content : function() {
     /* hide all pages before loading, will reveal only visible ones later */
-    this.pre_hide_pages();
+    /* don't hide pages for automation */
+    /* this.pre_hide_pages(); */
   },
 
   initialize_radio_button : function() {
