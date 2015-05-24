@@ -209,6 +209,7 @@ set(PDF2HTMLEX_RESOURCE
     ${CMAKE_SOURCE_DIR}/share/LICENSE
     ${CMAKE_SOURCE_DIR}/share/manifest
     ${CMAKE_SOURCE_DIR}/share/manifest-simple
+    ${CMAKE_SOURCE_DIR}/share/manifest-simple-inline
     ${CMAKE_SOURCE_DIR}/share/pdf2htmlEX.js
     ${CMAKE_SOURCE_DIR}/share/pdf2htmlEX.min.js
     ${CMAKE_SOURCE_DIR}/share/pdf2htmlEX-64x64.png

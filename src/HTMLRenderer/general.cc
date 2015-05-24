@@ -406,8 +406,12 @@ void HTMLRenderer::post_process(void)
     // apply manifest
     string manifest = MANIFEST_FILENAME.c_str(); 
     // when simple param is given, use simple manifest-simple 
-    if(param.simple)
-        manifest = str_fmt("%s-simple", manifest.c_str());
+    if(param.simple) {
+        if(param.simple == 2)
+            manifest = str_fmt("%s-simple-inline", manifest.c_str());
+        else 
+            manifest = str_fmt("%s-simple", manifest.c_str());
+    }
 
     ifstream manifest_fin((char*)str_fmt("%s/%s", param.data_dir.c_str(), manifest.c_str()), ifstream::binary);
     if(!manifest_fin)

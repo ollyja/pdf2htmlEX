@@ -373,9 +373,9 @@ int main(int argc, char **argv)
 // we need to define input/ouput file based on cygpath result 
 #if defined(__CYGWIN__)
     // here gs is softlink to windows gswin64c.exe
-    char const* command = "/usr/bin/gswin64c.exe -sDEVICE=pdfwrite -dPDFSETTINGS=/screen -dAutoFilterColorImages=false -dDownsampleColorImages=false -dNOPAUSE -dQUIET -dBATCH -sOutputFile=$(cygpath -w %s)  $(cygpath -w %s)"; 
+    char const* command = "/usr/bin/gswin64c.exe -sstdout=/dev/null -sDEVICE=pdfwrite -dPDFSETTINGS=/screen -dAutoFilterColorImages=false -dDownsampleColorImages=false -dPDFSTOPONERROR -dNOPAUSE -dQUIET -dBATCH -sOutputFile=$(cygpath -w %s)  $(cygpath -w %s)"; 
 #else 
-    char const* command = "/usr/bin/gs -sDEVICE=pdfwrite -dPDFSETTINGS=/screen -dAutoFilterColorImages=false -dDownsampleColorImages=false -dNOPAUSE -dQUIET -dBATCH -sOutputFile=%s %s"; 
+    char const* command = "/usr/bin/gs -sstdout=/dev/null -sDEVICE=pdfwrite -dPDFSETTINGS=/screen -dAutoFilterColorImages=false -dDownsampleColorImages=false -dPDFSTOPONERROR -dNOPAUSE -dQUIET -dBATCH -sOutputFile=%s %s"; 
 #endif 
 
     parse_options(argc, argv);
@@ -425,12 +425,12 @@ int main(int argc, char **argv)
                auto command_run = str_fmt(command, opdffile.c_str(), param.input_filename.c_str()); 
                int ret = system((char*)command_run); 
                if(ret) {
-                  // something is bad
-                  throw "Fail to run gs to optimize the file"; 
+                  // something is bad, use original to move on 
                }
-               
-               // exchange file name 
-               pdffile = opdffile; 
+               else {
+                  // exchange file name 
+                  pdffile = opdffile; 
+               }
             }
 
             GooString fileName(pdffile.c_str());
