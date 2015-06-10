@@ -330,11 +330,19 @@ Viewer.prototype = {
     }, false);
 
     // handle links
-    [this.container, this.outline].forEach(function(ele) {
+    [this.container].forEach(function(ele) {
       ele.addEventListener('click', self.link_handler.bind(self), false);
     });
 
     this.initialize_radio_button();
+    
+    // if outline is true, register click event too 
+    if(this.outline) {
+      [this.outline].forEach(function(ele) {
+         ele.addEventListener('click', self.link_handler.bind(self), false);
+      });
+    }
+
     this.render();
   },
 
